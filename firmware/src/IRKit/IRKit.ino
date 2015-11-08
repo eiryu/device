@@ -211,6 +211,7 @@ void process_commands() {
 }
 
 void on_irkit_ready() {
+    color.setSleep(3); // LED sleep after 3sec
     color.setLedColor( 0, 0, 1, false ); // blue: ready
 }
 

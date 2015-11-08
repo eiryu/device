@@ -24,7 +24,9 @@ FullColorLed::FullColorLed(int pinR, int pinG, int pinB) :
     pinB_(pinB),
     blinkOn_(0),
     isBlinking_(false),
-    blink_timer_(TIMER_OFF)
+    blink_timer_(TIMER_OFF),
+    sleep_timeout_(TIMER_OFF),
+    sleep_timer_(TIMER_OFF)
 {
 }
 
@@ -39,6 +41,9 @@ void FullColorLed::setLedColor(bool colorR, bool colorG, bool colorB, bool blink
     isBlinking_  = blink;
 
     blink_timer_ = TIMER_OFF;
+    if (sleep_timeout_ != TIMER_OFF) {
+      TIMER_START(sleep_timer_, sleep_timeout_);
+    }
 }
 
 void FullColorLed::setLedColor(bool colorR, bool colorG, bool colorB, bool blink, uint8_t blink_timeout) {
@@ -49,6 +54,11 @@ void FullColorLed::setLedColor(bool colorR, bool colorG, bool colorB, bool blink
 
 void FullColorLed::off() {
     setLedColor( 0, 0, 0, false );
+    TIMER_STOP(sleep_timer_);
+}
+
+void FullColorLed::setSleep(uint8_t sleep_timeout) {
+    sleep_timeout_ = sleep_timeout;
 }
 
 void FullColorLed::onTimer() {
@@ -70,5 +80,9 @@ void FullColorLed::onTimer() {
     if (TIMER_FIRED(blink_timer_)) {
         TIMER_STOP(blink_timer_);
         isBlinking_ = false;
+    }
+    TIMER_TICK(sleep_timer_);
+    if (TIMER_FIRED(sleep_timer_)) {
+      off();
     }
 }
